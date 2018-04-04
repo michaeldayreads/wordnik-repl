@@ -6,6 +6,8 @@ import sys
 
 import api
 
+from md_game import master_dict
+
 PROMPT = 'wordnik repl >> '
 EXIT = ['exit', 'exit()', 'quit', 'quit()']
 ASK4HELP = ['-h', '--help', 'help']
@@ -96,10 +98,6 @@ class Session(object):
         self.menu = {}
         self.api = api.ApiHandler(self.wnu, self.wnp, self.wnk)
 
-    def test(self):
-        """Test."""
-        print('WORKS!')
-
     def begin(self):
         """Command for user to start game."""
         self._startGame()
@@ -133,9 +131,21 @@ class Session(object):
         print('\nDone!')
         return word_dict
 
-    def _saveResults(self):
-        """Save game score."""
-        pass
+    def _saveResults(self, known, unknown):
+        """Save the list of words in `known` and `unknown` to wordnik."""
+        self.api.saveList(self.permalinks['known'], known)
+        self.api.saveList(self.permalinks['unknown'], unknown)
+
+    def test(self):
+        """Check functionality."""
+        testList = ['computable', 'algorithm', 'checksum', 'encryption']
+        self.flush = True
+        result = self.api.saveList('epsilon', testList)
+        self.out = 'Result: '.format(result)
+
+    def demo(self):
+        """Must be called AFTER begin."""
+        master_dict(self.master_dict)
 
 
 session = Session()

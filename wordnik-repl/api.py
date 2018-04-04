@@ -1,14 +1,9 @@
 """Module to handle calls to the wordnik API."""
 
+import json
 import requests
 
-
 BASE_URI = 'https://api.wordnik.com/v4'
-
-
-def sanity():
-    """tbd."""
-    print('Sanity from the API module.')
 
 
 def full_uri(resource, method, sub_method=''):
@@ -22,6 +17,14 @@ def full_uri(resource, method, sub_method=''):
         )
     else:
         return '{}/{}.json/{}'.format(BASE_URI, resource, method)
+
+
+def prep_word_list(words):
+    """Return json data to post to wordnik wordList."""
+    pre_json = {}
+    for word in words:
+        pre_json['word'] = word
+    return json.dumps(pre_json)
 
 
 class ApiHandler(object):
@@ -96,3 +99,13 @@ class ApiHandler(object):
             return the_def
         else:
             self._api_error('Unable to get definition.', req)
+
+    def saveList(self, permalink, words):
+        """Save words to wordList at permalink."""
+        uri = full_uri('wordList', permalink, 'words')
+        # payload = prep_word_list(words)
+        payload = json.dumps(words)
+        req = requests.post(uri, payload, headers=self.headers)
+        if req.status_code is not 200:
+            self._api_error('Unable to post list.', req)
+        return req.status_code
